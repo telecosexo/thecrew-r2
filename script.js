@@ -9,9 +9,8 @@ const CONFIG = {
     WEBHOOKS: {
         ACOES: "https://discord.com/api/webhooks/1496241058194133075/wbaI07JmuEBc-XkKO2vBp2DwG-Hmw8uKucZNCR_83J9CITDsypTxw0plzozoEkntKuos",
         VENDAS: "https://discord.com/api/webhooks/1496239305797140582/PVz0WCMlUBLmdI20DfVWQD3USrklnMVk1eol1Na_Dx7ubltyXlp6QuIdLAfd-Iy5uNzx",
-        LAVAGEM: "https://discord.com/api/webhooks/1496241309156118649/fhU75TrYrUi6Xr4Qt6aHA9cwEl1psRfFCRCDm3FNDwrqHuohREHVwz35HOEmZX5cHMSe",
+        LOGS_VENDAS: "https://discord.com/api/webhooks/1496254478205063432/rw6jLuXLwlqvHnkDLv9UeB9pSU2-eITSVSjV_8zwV03Gk8mf-8sM-QMUGnigAUbinOf4"
     },
-    TAXA_MAQUINA: 10,
     MAT_NAMES: ["Anfetamina", "Comprimidos", "Reagente", "Ziplock"],
     MAT_WEIGHTS: [0.28, 0.28, 0.28, 0.01]
 };
@@ -68,7 +67,7 @@ const app = {
             timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false
         }).format(now);
 
-        ['acao', 'venda', 'lavagem'].forEach(prefix => {
+        ['acao', 'venda'].forEach(prefix => {
             const d = document.getElementById(`${prefix}-data`);
             const t = document.getElementById(`${prefix}-hora`);
             if (d) d.value = dateStr;
@@ -575,93 +574,6 @@ const app = {
         }, 400);
     },
 
-    formatarValorLavagem(input) {
-        let valor = input.value.replace(/\D/g, '');
-        if (valor) {
-            valor = parseInt(valor).toLocaleString('pt-BR');
-        }
-        input.value = valor;
-        this.calcularLavagem();
-    },
-
-    calcularLavagem() {
-        const valorOriginal = parseInt(document.getElementById('lavagem-valor').value.replace(/\D/g, '')) || 0;
-        const taxaLavagem = parseFloat(document.getElementById('lavagem-taxa').value) || 0;
-        const taxaMaquina = CONFIG.TAXA_MAQUINA;
-        const resultadoBox = document.getElementById('lavagem-resultado');
-
-        if (valorOriginal <= 0 || taxaLavagem <= 0) {
-            resultadoBox.classList.add('hidden');
-            return;
-        }
-
-        const taxaTotalValor = valorOriginal * (taxaLavagem / 100);
-        const valorLiquido = valorOriginal - taxaTotalValor;
-        const taxaMaquinaValor = valorOriginal * (taxaMaquina / 100);
-        const restoTaxa = taxaTotalValor - taxaMaquinaValor;
-        const alvejante = Math.ceil(valorOriginal / 10000);
-
-        const lucroFaccao = restoTaxa * 0.50;
-        const lucroResponsavel = restoTaxa * 0.50;
-
-        document.getElementById('lav-res-original').textContent = `R$ ${valorOriginal.toLocaleString('pt-BR')}`;
-        document.getElementById('lav-res-maquina').textContent = `R$ ${taxaMaquinaValor.toLocaleString('pt-BR')}`;
-        document.getElementById('lav-res-taxa').textContent = `${taxaLavagem}%`;
-        document.getElementById('lav-res-faccao').textContent = `R$ ${lucroFaccao.toLocaleString('pt-BR')}`;
-        document.getElementById('lav-res-responsavel').textContent = `R$ ${lucroResponsavel.toLocaleString('pt-BR')}`;
-        document.getElementById('lav-res-liquido').textContent = `R$ ${valorLiquido.toLocaleString('pt-BR')}`;
-        if (document.getElementById('lav-res-alvejante')) {
-            document.getElementById('lav-res-alvejante').textContent = alvejante;
-        }
-
-        resultadoBox.classList.remove('hidden');
-    },
-
-    async enviarLavagemWebhook() {
-        const responsavel = document.getElementById('lavagem-responsavel').value.trim();
-        const faccao = document.getElementById('lavagem-faccao').value.trim();
-        const valorOriginal = parseInt(document.getElementById('lavagem-valor').value.replace(/\D/g, '')) || 0;
-        const taxaLavagem = parseFloat(document.getElementById('lavagem-taxa').value) || 0;
-        const dataInput = document.getElementById('lavagem-data').value;
-        const horaInput = document.getElementById('lavagem-hora').value;
-
-        if (!responsavel) return this.showToast("Informe o responsável", "error");
-        if (!faccao) return this.showToast("Informe a facção", "error");
-        if (valorOriginal <= 0) return this.showToast("Informe o valor a lavar", "error");
-        if (taxaLavagem <= 0) return this.showToast("Informe a taxa de lavagem", "error");
-
-        const taxaMaquina = CONFIG.TAXA_MAQUINA;
-        const taxaTotalValor = valorOriginal * (taxaLavagem / 100);
-        const valorLiquido = valorOriginal - taxaTotalValor;
-        const taxaMaquinaValor = valorOriginal * (taxaMaquina / 100);
-        const restoTaxa = taxaTotalValor - taxaMaquinaValor;
-        const lucroFaccao = restoTaxa * 0.50;
-        const lucroResponsavel = restoTaxa * 0.50;
-        const alvejante = Math.ceil(valorOriginal / 10000);
-        const dataFormatada = this.formatDate(dataInput);
-
-        const embedLavagem = {
-            username: "IceHelper",
-            embeds: [{
-                title: "💸 Lavagem de Dinheiro",
-                color: 3066993,
-                fields: [
-                    { name: "👤 Responsável", value: responsavel, inline: true },
-                    { name: "🏛️ Facção", value: faccao, inline: true },
-                    { name: "💰 Valor Sujo", value: `R$ ${valorOriginal.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "📈 Taxa Lavagem", value: `${taxaLavagem}%`, inline: true },
-                    { name: "⚙️ Taxa Máquina (10%)", value: `R$ ${taxaMaquinaValor.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "🧪 Alvejante", value: `${alvejante} unidades`, inline: true },
-                    { name: "🔥 Lucro Facção (50%)", value: `R$ ${lucroFaccao.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "👤 Lucro Responsável (50%)", value: `R$ ${lucroResponsavel.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "✨ Valor Lavado (Repassar)", value: `R$ ${valorLiquido.toLocaleString('pt-BR')}`, inline: false }
-                ],
-                footer: { text: `Data: ${dataFormatada} às ${horaInput}` }
-            }]
-        };
-
-        this.sendWebhook(CONFIG.WEBHOOKS.LAVAGEM, embedLavagem, "Lavagem registrada!");
-    }
-};
+    };
 
 document.addEventListener('DOMContentLoaded', () => app.init());
