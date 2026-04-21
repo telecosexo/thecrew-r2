@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>PAINEL THE CREW</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+    
+    
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <h1>PAINEL THE CREW</h1>
+    </div>
+
+    <nav class="nav-tabs" id="nav-menu">
+        <button class="nav-btn active" onclick="app.switchTab('vendas', event)">💰 Vendas</button>
+        <button class="nav-btn" onclick="app.switchTab('acoes', event)">⚔️ Ações</button>
+        <button class="nav-btn" onclick="app.switchTab('divulgacao', event)">📢 Divulgação</button>
+    </nav>
+</header>
+
+<div id="vendas" class="section active">
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <h2>Registrar Venda</h2>
+                <div class="row" id="area-vendedor-info">
+                    <div class="col form-group"><label>Vendedor</label><input type="text" id="venda-vendedor" placeholder="Nome..." autocomplete="off"></div>
+                    <div class="col form-group"><label>Facção</label><input type="text" id="venda-faccao" placeholder="Ex: Turkey..." autocomplete="off"></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Data</label><input type="date" id="venda-data"></div>
+                    <div class="col form-group"><label>Horário</label><input type="time" id="venda-hora"></div>
+                </div>
+
+                <hr class="separator">
+
+                <div class="form-group" id="area-tabela-preco">
+                    <label>TABELA DE PREÇO (GLOBAL):</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="preco-tipo" value="min" onchange="app.updateGlobalPriceType('min')">
+                            <div class="radio-label">Parceria (Mínimo)</div>
+                        </label>
+                        <label>
+                            <input type="radio" name="preco-tipo" value="max" onchange="app.updateGlobalPriceType('max')" checked>
+                            <div class="radio-label">Pista (Máximo)</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>SELECIONE O PRODUTO:</label>
+                    <div id="sales-catalog" class="catalog-container"></div>
+                </div>
+
+                <div id="price-controls" class="hidden-controls">
+                    <div class="row">
+                        <div class="col form-group"><label>Valor Unit. (R$)</label><input type="number" id="venda-preco" placeholder="0" readonly></div>
+                        <div class="col form-group">
+                            <label>Qtd.</label>
+                            <div class="qty-selector">
+                                <button class="btn-qty" onclick="app.adjustSalesQtd(-1)">-</button>
+                                <input type="number" id="venda-qtd" value="1" min="1" onchange="app.validateInput(this)">
+                                <button class="btn-qty" onclick="app.adjustSalesQtd(1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" id="btn-add-cart" onclick="app.addToCart()">+ ADICIONAR AO CARRINHO</button>
+                </div>
+                <div id="select-msg" class="text-center text-muted italic mt-15">Selecione um produto acima...</div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card card-cart" id="area-carrinho">
+                <div class="cart-header">
+                    <h2>🛒 Carrinho</h2>
+                    <button class="btn-clear" onclick="app.clearCart()">Limpar</button>
+                </div>
+                
+                <div id="cart-items" class="cart-body">
+                    <p class="empty-msg">Carrinho vazio</p>
+                </div>
+
+                <div id="cart-summary-area"></div>
+                
+                <button class="btn btn-primary mt-20 btn-glow" onclick="app.sendSaleWebhook()">
+                    📡 FINALIZAR E ENVIAR
+                </button>
+
+                <div class="mt-30 border-top pt-20" id="area-producao">
+                    <button class="btn btn-secondary btn-glow" onclick="app.calculateCartProduction()">
+                        🛠️ Calcular Produção do Pedido
+                    </button>
+
+                    <div id="cart-production-area" class="production-summary-box hidden mt-20">
+                        <div class="prod-box-header">
+                            <h3 class="summary-title-styled">Resumo Total</h3>
+                            <button class="btn-close-box" onclick="app.closeProduction()">✖</button>
+                        </div>
+                        
+                        <div id="mats-list-display" class="tags-container mb-15"></div>
+                        
+                        <h4 class="text-muted text-center mb-10 text-sub uppercase">Detalhamento por Item:</h4>
+                        <div id="sales-production-details" class="flex-column gap-10"></div>
+
+                        <div class="production-weights-grid mt-15">
+                            <div class="weight-pill">
+                                📥 Materiais: <span id="total-mat-weight-display" class="text-white">0 kg</span>
+                            </div>
+                            <div class="weight-pill">
+                                📦 Unidades: <span id="total-prod-weight-display" class="text-white">0 kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="estatisticas" class="section">
+    <div class="card">
+        <div class="cart-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;">
+            <h2 style="margin: 0;">📊 Dashboard (ADMIN)</h2>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="date" id="filtro-inicio" style="padding: 8px; width: auto; font-size: 0.85rem;">
+                <span class="text-muted">até</span>
+                <input type="date" id="filtro-fim" style="padding: 8px; width: auto; font-size: 0.85rem;">
+                <button class="btn btn-small" onclick="app.loadDashboard()" style="padding: 0 15px;">🔍 Filtrar</button>
+            </div>
+        </div>
+        <p class="text-muted text-center mb-15 mt-15">Dados sincronizados em tempo real com a nuvem.</p>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Vendas Realizadas</h3>
+                <div class="stat-number" id="stat-total-vendas">0</div>
+                <div class="stat-desc">Registros no período</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Movimentado</h3>
+                <div class="stat-number" id="stat-total-bruto" style="color: #d8b4fe;">R$ 0</div>
+                <div class="stat-desc">Valor Bruto</div>
+            </div>
+            <div class="stat-card highlight">
+                <h3>Lucro Líquido (Facção)</h3>
+                <div class="stat-number" id="stat-faturamento">R$ 0</div>
+                <div class="stat-desc">Após custos e %</div>
+            </div>
+            <div class="stat-card">
+                <h3>Itens Vendidos</h3>
+                <div class="stat-number" id="stat-total-itens">0</div>
+                <div class="stat-desc">Total de unidades</div>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+        <h3>🏆 Top Itens Vendidos</h3>
+        <div id="stats-top-itens" class="top-list">
+            <p class="text-muted italic">Carregando dados...</p>
+        </div>
+    </div>
+</div>
+
+<div id="acoes" class="section">
+    <div class="card">
+        <div class="card-header"><h2>Registro de Ação</h2></div>
+        <div class="row">
+            <div class="col form-group">
+                <label>Local da Ação</label>
+                <select id="acao-tipo">
+                    <option value="" disabled selected>Selecione...</option>
+                    <option>Barbearia</option>
+                    <option>Loja de Armas</option>
+                    <option>Loja de Departamento</option>
+                    <option>Banco Fleeca</option>
+                    <option>Açougue</option>
+                    <option>Banco Central</option>
+                    <option>Observatório</option>
+                    <option>Auditório</option>
+                    <option>Mergulhador</option>
+                    <option>Atom</option>
+                    <option>Campo de Golf</option>
+                    <option>Loja Samir</option>
+                    <option>Planet</option>
+                    <option>Pacific Standard</option>
+                    <option>Nióbio</option>
+                    <option>Joalheria</option>
+                    <option>Helicrash</option>
+                    <option>Mesa de Drogas</option>
+                    <option>Ação de Rua (PvP)</option>
+                </select>
+            </div>
+            <div class="col form-group">
+                <label>Resultado</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="resultado" value="Vitória"><div class="radio-label label-win">Vitória</div></label>
+                    <label><input type="radio" name="resultado" value="Derrota"><div class="radio-label label-loss">Derrota</div></label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col form-group"><label>Data</label><input type="date" id="acao-data"></div>
+            <div class="col form-group"><label>Horário</label><input type="time" id="acao-hora"></div>
+        </div>
+        <div class="form-group">
+            <label>Participantes</label>
+            <div class="input-group" id="group-participantes">
+                <input type="text" id="novo-participante" placeholder="Nome/ID e Enter..." autocomplete="off" onkeypress="app.handleEnterParticipant(event)">
+                <button class="btn btn-small" type="button" onclick="app.addParticipant()">Add</button>
+            </div>
+            <div id="lista-participantes" class="participants-list"></div>
+        </div>
+        <button class="btn btn-primary" onclick="app.sendActionWebhook()">📡 Enviar Registro (Discord)</button>
+    </div>
+</div>
+
+<div id="divulgacao" class="section">
+    <div class="card max-w-600 mx-auto">
+        <h2>📢 Central de Anúncios</h2>
+        <div class="copy-card" onclick="app.copyAdText(this)">
+            🚨🎯 THE CREW NA ATIVA 🎯🚨
+
+            🔥💎 GARANTA SUA META 💎 🔥
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<div id="tutorial-box" class="hidden">
+    <div class="tut-header">
+        <div id="tut-title">Título</div>
+        <div id="tut-progress">1/7</div>
+    </div>
+    <div id="tut-text">Explicação aqui...</div>
+    <div class="tut-buttons">
+        <button class="btn-tut-text" onclick="app.endTutorial()">Pular</button>
+        <div class="tut-nav-group">
+            <button class="btn-tut-nav" id="btn-tut-prev" onclick="app.prevTutorialStep()" disabled>⬅ Voltar</button>
+            <button class="btn-tut-nav btn-tut-next" onclick="app.nextTutorialStep()">Próximo ➡</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
