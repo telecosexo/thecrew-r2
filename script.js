@@ -16,7 +16,7 @@ const CONFIG = {
 };
 
 const CATALOG = {
-    'Meta': { name: "Meta", category: "Droga", price: { min: 100, max: 130 }, weight: 0.15, cost: 0, recipe: [4, 4, 4], baseYield: 4, metaPerZiplock: 5, ziplockNeeded: 5, buffer: 2 }
+    'LSD': { name: "LSD", category: "Droga", price: { min: 150, max: 180 }, weight: 0.15, cost: 0, recipe: [4, 4, 4], baseYield: 4, metaPerZiplock: 60, ziplockNeeded: 5, buffer: 2 }
 };
 
 /**
