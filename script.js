@@ -1,5 +1,3 @@
-
-
 /**
  * =============================================================================
  * CONSTANTES GLOBAIS E DADOS
@@ -293,7 +291,7 @@ const app = {
         if (this.state.cart.length === 0) return this.showToast('Carrinho vazio!', 'error');
         
         let totals = [0, 0, 0], totalMatWeight = 0, totalProdWeight = 0, detailsHTML = "";
-        const FIXO = { materialsPerBatch: 4, crystalsPerBatch: 4, crystalsPerProcess: 5, ziplockPerProcess: 5, metaPerProcess: 10, buffer: 2 };
+        const FIXO = { materialsPerBatch: 4, crystalsPerBatch: 4, crystalsPerProcess: 5, ziplockPerProcess: 5, metaPerProcess: 60, buffer: 2 };
 
         this.state.cart.forEach(item => {
             const sellQtd = item.qtd;
