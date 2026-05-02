@@ -291,15 +291,15 @@ const app = {
         if (this.state.cart.length === 0) return this.showToast('Carrinho vazio!', 'error');
         
         let totals = [0, 0, 0], totalMatWeight = 0, totalProdWeight = 0, detailsHTML = "";
-        const FIXO = { materialsPerBatch: 4, crystalsPerBatch: 4, crystalsPerProcess: 5, ziplockPerProcess: 5, metaPerProcess: 60, buffer: 2 };
+        const FIXO = { crystalsPerBatch: 4, crystalsPerProcess: 5, ziplockPerProcess: 5, metaPerProcess: 60 };
 
         this.state.cart.forEach(item => {
             const sellQtd = item.qtd;
             const matPerBatch = item.recipe[0];
             
             const processes = Math.ceil(sellQtd / FIXO.metaPerProcess);
-            const crystals = processes * FIXO.crystalsPerProcess + FIXO.buffer;
-            const matBatches = Math.ceil(crystals / FIXO.crystalsPerBatch);
+            const crystalsNeeded = processes * FIXO.crystalsPerProcess;
+            const matBatches = Math.ceil(crystalsNeeded / FIXO.crystalsPerBatch);
             
             const mat0 = matBatches * matPerBatch;
             const mat1 = matBatches * matPerBatch;
@@ -315,7 +315,7 @@ const app = {
             totalProdWeight += sellQtd * item.weight;
             
             const crystalsProduced = matBatches * FIXO.crystalsPerBatch;
-            const metaProduced = crystalsProduced / FIXO.crystalsPerProcess * FIXO.metaPerProcess;
+            const metaProduced = processes * FIXO.metaPerProcess;
             
             let itemMatsHTML = '';
             if (mat0) itemMatsHTML += `<div class="mat-item-tiny"><span>${CONFIG.MAT_NAMES[0]}:</span> <b>${mat0}</b></div>`;
