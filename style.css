@@ -110,7 +110,7 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
 .summary-faction { color: var(--danger); }
 
 /* --- UTILITÁRIOS --- */
-.copy-card { background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.2); border-radius: var(--radius); padding: 30px; color: var(--text-main); text-align: center; cursor: pointer; font-family: 'Consolas', monospace; white-space: pre-line; line-height: 1.6; margin-bottom: 20px; }
+.copy-card { background: rgba(0,0,0,0.2); border: 2px dashed rgba(255,255,255,0.2); border-radius: var(--radius); padding: 29px; color: var(--text-main); text-align: center; cursor: pointer; font-family: 'Consolas', monospace; white-space: pre-line; line-height: 1.6; margin-bottom: 19px; }
 .copy-card:last-child { margin-bottom: 0; }
 .copy-card:hover { border-color: var(--primary); background-color: rgba(59, 130, 246, 0.05); }
 
