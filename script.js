@@ -14,7 +14,7 @@ const CONFIG = {
 };
 
 const CATALOG = {
-    'LSD': { name: "LSD", category: "Droga", price: { min: 150, max: 180 }, weight: 0.15, cost: 0, recipe: [4, 4, 4], baseYield: 4, metaPerZiplock: 60, ziplockNeeded: 5, buffer: 2 }
+    'LSD': { name: "Metafetamina", category: "Droga", price: { min: 150, max: 180 }, weight: 0.15, cost: 0, recipe: [4, 4, 4], baseYield: 4, metaPerZiplock: 60, ziplockNeeded: 5, buffer: 2 }
 };
 
 /**
@@ -276,14 +276,14 @@ const app = {
         
         // --- NOVA MATEMÁTICA: ABATE O CUSTO PRIMEIRO E DIVIDE O LUCRO ---
         const lucroLiquido = grandTotal - totalProdCost;
-        const valorVendedor = lucroLiquido * 0.40; // 40% para o vendedor
-        const faccaoNet = lucroLiquido * 0.60;     // 60% para a facção
+        const valorVendedor = lucroLiquido * 0.60; // 60% para o vendedor
+        const faccaoNet = lucroLiquido * 0.40;     // 40% para a facção
 
         this.dom['cart-summary-area'].innerHTML = `
         <div class="cart-summary-box">
             <div class="summary-total">💸 Total: R$ ${grandTotal.toLocaleString('pt-BR')}</div>
-            <div class="summary-seller">💰 Vendedor (40% do Lucro): R$ ${valorVendedor.toLocaleString('pt-BR')}</div>
-            <div class="summary-faction">🔥 Facção (60% do Lucro): R$ ${faccaoNet.toLocaleString('pt-BR')}</div>
+            <div class="summary-seller">💰 Vendedor (60% do Lucro): R$ ${valorVendedor.toLocaleString('pt-BR')}</div>
+            <div class="summary-faction">🔥 Facção (40% do Lucro): R$ ${faccaoNet.toLocaleString('pt-BR')}</div>
         </div>`;
     },
 
